@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::io::{self, Read, Write};
 use std::time::{Duration, SystemTime};
+use std::fs::File;
 
 // İş paketi durumunu tutmak için struct
 #[derive(Clone, Debug)]
@@ -86,6 +87,20 @@ fn handle_result(ranges: &mut HashMap<u128, WorkPackage>, request: &str, peer_ad
             println!("  Timeout sayısı: {}", package.timeout_count);
             println!("  İş paketi aralığı: {} - {}", base_range, base_range + 10_000_000);
             println!("-------------------");
+
+            // Sonuç dosyasını oluştur
+            let filename = format!("{}.txt", parts[3]);
+            if let Ok(mut file) = File::create(&filename) {
+                let content = format!("Hash değeri: {}\nHash edilen metin: {}\n", 
+                    parts[3], parts[1]);
+                if let Err(e) = file.write_all(content.as_bytes()) {
+                    println!("Dosya yazma hatası: {}", e);
+                } else {
+                    println!("Sonuç {} dosyasına kaydedildi", filename);
+                }
+            } else {
+                println!("Dosya oluşturma hatası: {}", filename);
+            }
         } else {
             println!("Hata: {} sayısı için iş paketi bulunamadı!", base_range);
             println!("Mevcut iş paketleri:");
@@ -100,8 +115,8 @@ fn handle_result(ranges: &mut HashMap<u128, WorkPackage>, request: &str, peer_ad
 fn handle_client(stream: TcpStream, work_ranges: Arc<Mutex<HashMap<u128, WorkPackage>>>) -> io::Result<()> {
     let mut stream = stream;
     let peer_addr = stream.peer_addr()?;
-    stream.set_read_timeout(Some(Duration::from_secs(30)))?;
-    stream.set_write_timeout(Some(Duration::from_secs(30)))?;
+    stream.set_read_timeout(Some(Duration::from_secs(300)))?;
+    stream.set_write_timeout(Some(Duration::from_secs(300)))?;
     
     let mut buffer = [0; 1024];
     
