@@ -27,7 +27,7 @@ impl WorkPackage {
     fn is_timed_out(&self) -> bool {
         if let Some(time) = self.assigned_time {
             if !self.completed {
-                time.elapsed().map(|elapsed| elapsed > Duration::from_secs(30)).unwrap_or(true)
+                time.elapsed().map(|elapsed| elapsed > Duration::from_secs(300)).unwrap_or(true)
             } else {
                 false
             }
