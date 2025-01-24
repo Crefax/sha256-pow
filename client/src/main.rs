@@ -144,11 +144,11 @@ fn main() -> io::Result<()> {
                     match send_result(&mut stream, &result) {
                         Ok(_) => {
                             println!("Sonuç başarıyla gönderildi");
-                            break;
+                            continue;
                         }
                         Err(e) => {
                             println!("Sonuç gönderme hatası: {}", e);
-                            break;
+                            return Err(e);
                         }
                     }
                 } else {
@@ -156,7 +156,7 @@ fn main() -> io::Result<()> {
                     let result = format!("RESULT_EMPTY {} {}", range_start, range_end);
                     if let Err(e) = send_result(&mut stream, &result) {
                         println!("Boş sonuç gönderme hatası: {}", e);
-                        break;
+                        return Err(e);
                     }
                 }
             }
